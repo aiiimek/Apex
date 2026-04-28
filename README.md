@@ -1,0 +1,5 @@
+- **Language:** Java 17+ (LTS)
+- **Framework:** JavaFX (MVC Pattern)
+- **Core Engine:** Apache MINA SSHD
+- **Security:** RSA, ED25519, AES-256
+- **Architecture:** Asynchronous Non-blocking I/O
