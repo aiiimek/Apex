@@ -1,0 +1,87 @@
+name: Build & Release Windows Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows-installer:
+    name: Build .exe installer on Windows
+    runs-on: windows-latest
+
+    permissions:
+      contents: write   # potrzebne do tworzenia Release i uploadu assets
+
+    steps:
+      # ─────────────────────────────────────────────
+      # 1. Checkout kodu
+      # ─────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────
+      # 2. Konfiguracja JDK 21 (Temurin, zawiera jpackage)
+      # ─────────────────────────────────────────────
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # ─────────────────────────────────────────────
+      # 3. Budowanie projektu + fat JAR przez Maven
+      # ─────────────────────────────────────────────
+      - name: Build with Maven (package + shade)
+        run: mvn --batch-mode clean package -DskipTests
+
+      # ─────────────────────────────────────────────
+      # 4. Tworzenie minimalnego runtime (jlink)
+      # ─────────────────────────────────────────────
+      - name: Create runtime image (jlink)
+        run: mvn --batch-mode javafx:jlink
+
+      # ─────────────────────────────────────────────
+      # 5. Pakowanie instalatora Windows (jpackage)
+      #    Wynik: target/Apex-<version>.exe
+      # ─────────────────────────────────────────────
+      - name: Package Windows installer (jpackage)
+        run: |
+          jpackage `
+            --type exe `
+            --name "Apex" `
+            --app-version "${{ github.ref_name }}" `
+            --vendor "Apex Project" `
+            --description "Apex SSH & SFTP Remote Commander" `
+            --runtime-image target/apex-jre `
+            --module-path target/apex-jre/lib `
+            --main-jar apex-1.0.0-SNAPSHOT-shaded.jar `
+            --main-class com.apex.app.Main `
+            --input target `
+            --dest target `
+            --win-dir-chooser `
+            --win-shortcut `
+            --win-menu `
+            --win-menu-group "Apex"
+        shell: powershell
+
+      # ─────────────────────────────────────────────
+      # 6. Wylistowanie target/ (debug — co zostało zbudowane)
+      # ─────────────────────────────────────────────
+      - name: List build artifacts
+        run: Get-ChildItem target\ -Filter "*.exe" | Select-Object Name, Length
+        shell: powershell
+
+      # ─────────────────────────────────────────────
+      # 7. Publikacja GitHub Release z plikiem .exe
+      # ─────────────────────────────────────────────
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Apex ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: target/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
