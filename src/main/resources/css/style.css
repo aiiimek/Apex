@@ -1,0 +1,652 @@
+/* ══════════════════════════════════════════════════════════════════
+   Apex SSH Client — "Termius Pro" Material Dark & Fluid Theme
+   Paleta "Deep Carbon":
+     Tło główne:       #121212
+     Panele/karty:     #1e1e1e
+     Powierzchnie:     #2d2d2d
+     Akcent (Blue):    #1a73e8 / #8ab4f8
+     Tekst główny:     #e0e0e0
+     Tekst pomocniczy: #9aa0a6
+     Borders:          #3c4043
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Globalne ustawienia ── */
+.root {
+    -fx-background-color: #121212;
+    -fx-font-family: 'Segoe UI', '-apple-system', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #e0e0e0;
+}
+
+/* ── Label domyślny ── */
+.label {
+    -fx-text-fill: #e0e0e0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PRZYCISKI — Płaskie, zaokrąglone, z transitions
+   ══════════════════════════════════════════════════════════════════ */
+
+.button {
+    -fx-background-color: #2d2d2d;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-width: 0;
+    -fx-padding: 9px 20px;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+}
+.button:hover {
+    -fx-background-color: #3c4043;
+}
+.button:armed,
+.button:pressed {
+    -fx-background-color: #232323;
+}
+.button:disabled {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #555555;
+    -fx-opacity: 0.6;
+}
+
+/* Przycisk Connect — akcent niebieski, "pill shape" */
+.connect-button {
+    -fx-background-color: #1a73e8;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-weight: 700;
+    -fx-padding: 9px 28px;
+    -fx-effect: dropshadow(gaussian, rgba(26,115,232,0.3), 8, 0, 0, 2);
+}
+.connect-button:hover {
+    -fx-background-color: #4a90e8;
+    -fx-effect: dropshadow(gaussian, rgba(26,115,232,0.5), 12, 0, 0, 3);
+}
+.connect-button:armed,
+.connect-button:pressed {
+    -fx-background-color: #1558b0;
+    -fx-effect: dropshadow(gaussian, rgba(26,115,232,0.2), 4, 0, 0, 1);
+}
+
+/* Przycisk SFTP — akcent tealowy */
+.sftp-button {
+    -fx-background-color: #1b8a5a;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+.sftp-button:hover {
+    -fx-background-color: #27ae60;
+}
+.sftp-button:armed,
+.sftp-button:pressed {
+    -fx-background-color: #14703d;
+}
+.sftp-button:disabled {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: #555555;
+    -fx-opacity: 0.6;
+}
+
+/* SFTP Toolbar Buttons */
+.sftp-nav-button {
+    -fx-background-color: #2d2d2d;
+    -fx-text-fill: #8ab4f8;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+.sftp-nav-button:hover {
+    -fx-background-color: #3c4043;
+}
+.sftp-nav-button:armed {
+    -fx-background-color: #232323;
+}
+
+.sftp-upload-button {
+    -fx-background-color: #7c4dff;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+.sftp-upload-button:hover {
+    -fx-background-color: #9b71ff;
+}
+.sftp-upload-button:armed {
+    -fx-background-color: #5e35b1;
+}
+
+.sftp-download-button {
+    -fx-background-color: #1a73e8;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+.sftp-download-button:hover {
+    -fx-background-color: #4a90e8;
+}
+.sftp-download-button:armed {
+    -fx-background-color: #1558b0;
+}
+
+.sftp-delete-button {
+    -fx-background-color: #cf3a3a;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+}
+.sftp-delete-button:hover {
+    -fx-background-color: #e55353;
+}
+.sftp-delete-button:armed {
+    -fx-background-color: #a72c2c;
+}
+
+.upload-button {
+    -fx-background-color: #7c4dff;
+    -fx-text-fill: #ffffff;
+}
+.upload-button:hover {
+    -fx-background-color: #9b71ff;
+}
+
+.danger-button {
+    -fx-background-color: #cf3a3a;
+    -fx-text-fill: #ffffff;
+}
+.danger-button:hover {
+    -fx-background-color: #e55353;
+}
+
+/* Mały przycisk (toolbar sesji) */
+.small-button {
+    -fx-padding: 5px 12px;
+    -fx-font-size: 12px;
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+/* Ujednolicona wysokość kontrolek na górnym pasku */
+.top-bar-control {
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+}
+
+/* Drag & Drop - wizualny feedback na liście SFTP */
+.drag-over {
+    -fx-border-color: #8ab4f8;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   POLA TEKSTOWE — Material Filled
+   ══════════════════════════════════════════════════════════════════ */
+
+.text-field,
+.password-field {
+    -fx-background-color: #2d2d2d;
+    -fx-border-color: transparent transparent #3c4043 transparent;
+    -fx-border-width: 0 0 2px 0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 6px 6px 0 0;
+    -fx-padding: 10px 15px;
+    -fx-text-fill: #e0e0e0;
+    -fx-prompt-text-fill: #9aa0a6;
+    -fx-min-height: 38px;
+    -fx-pref-height: 38px;
+    -fx-font-size: 13px;
+}
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: transparent transparent #8ab4f8 transparent;
+    -fx-border-width: 0 0 2px 0;
+    -fx-background-color: #353535;
+    -fx-effect: dropshadow(gaussian, rgba(138,180,248,0.15), 6, 0, 0, 2);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COMBOBOX — Material Filled
+   ══════════════════════════════════════════════════════════════════ */
+
+.combo-box {
+    -fx-background-color: #2d2d2d;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 6px;
+    -fx-border-width: 0;
+    -fx-padding: 4px 8px;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+.combo-box:hover {
+    -fx-background-color: #3c4043;
+}
+.combo-box:focused {
+    -fx-background-color: #353535;
+    -fx-effect: dropshadow(gaussian, rgba(138,180,248,0.15), 6, 0, 0, 2);
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #e0e0e0;
+    -fx-background-color: transparent;
+}
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+.combo-box .arrow {
+    -fx-background-color: #9aa0a6;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #2d2d2d;
+    -fx-border-color: #3c4043;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 12, 0, 0, 4);
+}
+.combo-box-popup .list-cell {
+    -fx-text-fill: #e0e0e0;
+    -fx-padding: 8px 14px;
+    -fx-background-color: transparent;
+}
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #3c4043;
+}
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: rgba(138,180,248,0.15);
+    -fx-text-fill: #8ab4f8;
+}
+
+.small-combo {
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+    -fx-font-size: 12px;
+    -fx-background-radius: 4px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LISTVIEW (SFTP)
+   ══════════════════════════════════════════════════════════════════ */
+
+.list-view {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #2d2d2d;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e0e0e0;
+    -fx-padding: 8px 14px;
+    -fx-font-size: 13px;
+}
+.list-view .list-cell:filled:hover {
+    -fx-background-color: rgba(138,180,248,0.08);
+}
+.list-view .list-cell:filled:selected {
+    -fx-background-color: rgba(138,180,248,0.18);
+    -fx-text-fill: #8ab4f8;
+    -fx-font-weight: bold;
+}
+
+/* Specjalne wyróżnienie katalogów i plików w SFTP */
+.sftp-list-view .list-cell {
+    -fx-font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TERMINAL — TextFlow & ScrollPane
+   ══════════════════════════════════════════════════════════════════ */
+
+.terminal-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-background: transparent;
+}
+.terminal-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.terminal-text-flow {
+    -fx-background-color: #121212;
+    -fx-padding: 10px 12px;
+}
+.terminal-text {
+    -fx-font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', 'Courier New', Monospaced;
+    -fx-font-size: 14px;
+}
+
+/* ── Kolory ANSI ── */
+.ansi-bold { -fx-font-weight: bold; }
+
+/* 0 = reset/domyślny (zostanie nadpisany przez motyw) */
+.ansi-0 { }
+/* 30 = Czarny/Szary */
+.ansi-30 { -fx-fill: #555555; }
+/* 31 = Czerwony */
+.ansi-31 { -fx-fill: #ff5555; }
+/* 32 = Zielony */
+.ansi-32 { -fx-fill: #55ff55; }
+/* 33 = Żółty */
+.ansi-33 { -fx-fill: #ffff55; }
+/* 34 = Niebieski (foldery) */
+.ansi-34 { -fx-fill: #5555ff; }
+/* 35 = Magenta */
+.ansi-35 { -fx-fill: #ff55ff; }
+/* 36 = Cyjan */
+.ansi-36 { -fx-fill: #55ffff; }
+/* 37 = Biały */
+.ansi-37 { -fx-fill: #ffffff; }
+
+/* Jasne warianty dla 90-97 */
+.ansi-90 { -fx-fill: #777777; }
+.ansi-91 { -fx-fill: #ff7777; }
+.ansi-92 { -fx-fill: #77ff77; }
+.ansi-93 { -fx-fill: #ffff77; }
+.ansi-94 { -fx-fill: #7777ff; }
+.ansi-95 { -fx-fill: #ff77ff; }
+.ansi-96 { -fx-fill: #77ffff; }
+.ansi-97 { -fx-fill: #ffffff; }
+
+/* ── Scrollbary terminala ── */
+.terminal-scroll-pane .scroll-bar:horizontal {
+    -fx-pref-height: 0;
+    -fx-max-height: 0;
+    -fx-opacity: 0;
+}
+.terminal-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+.terminal-scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+.terminal-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(138,180,248,0.25);
+    -fx-background-radius: 4px;
+}
+.terminal-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(138,180,248,0.45);
+}
+.terminal-scroll-pane .scroll-bar:vertical .increment-button,
+.terminal-scroll-pane .scroll-bar:vertical .decrement-button {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+/* ── Motywy Terminala ── */
+.theme-matrix {
+    -fx-background-color: #121212;
+}
+.theme-matrix .text, .theme-matrix .terminal-text {
+    -fx-fill: #00e676;
+}
+
+.theme-cyberpunk {
+    -fx-background-color: #140018;
+}
+.theme-cyberpunk .text, .theme-cyberpunk .terminal-text {
+    -fx-fill: #ff0080;
+}
+
+.theme-classic {
+    -fx-background-color: #0a0a0a;
+}
+.theme-classic .text, .theme-classic .terminal-text {
+    -fx-fill: #e8e8e8;
+}
+
+.theme-ocean {
+    -fx-background-color: #0a1628;
+}
+.theme-ocean .text, .theme-ocean .terminal-text {
+    -fx-fill: #00e5ff;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ETYKIETY I NAGŁÓWKI
+   ══════════════════════════════════════════════════════════════════ */
+
+.label-header {
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+    -fx-text-fill: #e0e0e0;
+}
+
+.status-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #9aa0a6;
+    -fx-font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PANELE STRUKTURALNE
+   ══════════════════════════════════════════════════════════════════ */
+
+.top-panel {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent transparent #2d2d2d transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.panel-container {
+    -fx-background-color: #121212;
+}
+
+.terminal-header {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: transparent transparent #2d2d2d transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* ── Status bar (dolny pasek) ── */
+.status-bar {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #2d2d2d transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+    -fx-min-height: 28px;
+    -fx-pref-height: 28px;
+}
+.status-bar-label {
+    -fx-text-fill: #9aa0a6;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* ── Ścieżka SFTP ── */
+.sftp-path-label {
+    -fx-text-fill: #8ab4f8;
+    -fx-font-family: 'Cascadia Code', 'Consolas', monospace;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* ── SplitPane divider ── */
+.split-pane {
+    -fx-background-color: #121212;
+}
+.split-pane > .split-pane-divider {
+    -fx-background-color: #3c4043;
+    -fx-padding: 0 1px 0 1px;
+}
+
+/* ── Separators ── */
+.separator .line {
+    -fx-border-color: #3c4043;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TABPANE — Termius-style Clean Tabs
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Kontener TabPane - pełne tło bez ramek */
+.session-tab-pane {
+    -fx-background-color: #121212;
+    -fx-border-width: 0;
+}
+
+/* Nagłówek zakładek */
+.session-tab-pane .tab-header-area {
+    -fx-padding: 0;
+}
+.session-tab-pane .tab-header-background {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: transparent transparent #2d2d2d transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Pojedyncza zakładka — nieaktywna */
+.session-tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 3px 0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 10px 22px 8px 22px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.session-tab-pane .tab:hover {
+    -fx-background-color: rgba(255,255,255,0.04);
+}
+
+/* Zakładka aktywna — niebieski pasek pod spodem */
+.session-tab-pane .tab:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #8ab4f8 transparent;
+    -fx-border-width: 0 0 3px 0;
+}
+
+/* Etykieta tekstu w zakładce */
+.session-tab-pane .tab .tab-label {
+    -fx-text-fill: #9aa0a6;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Segoe UI', '-apple-system', sans-serif;
+}
+.session-tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: 700;
+}
+.session-tab-pane .tab:hover .tab-label {
+    -fx-text-fill: #c0c4c8;
+}
+
+/* Przycisk zamykania zakładki (krzyżyk X) */
+.session-tab-pane .tab-close-button {
+    -fx-background-color: #9aa0a6;
+    -fx-shape: "M 0 0 L 4 4 M 4 0 L 0 4";
+    -fx-padding: 0 4 0 4;
+}
+.session-tab-pane .tab-close-button:hover {
+    -fx-background-color: #e55353;
+}
+
+/* Usunięcie białych linii i domyślnych ramek JavaFX */
+.session-tab-pane .tab-header-area .headers-region .tab:top {
+    -fx-background-insets: 0;
+}
+.session-tab-pane .tab-content-area {
+    -fx-background-color: #121212;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+/* Przycisk "+" do dodawania zakładek (ukryty — nie używamy go) */
+.session-tab-pane .control-buttons-tab {
+    -fx-background-color: transparent;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCROLLBARY — Globalne (non-terminal)
+   ══════════════════════════════════════════════════════════════════ */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: rgba(154,160,166,0.3);
+    -fx-background-radius: 4px;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(154,160,166,0.5);
+}
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PROGRESS BAR — subtelny liniowy, akcent niebieski
+   ══════════════════════════════════════════════════════════════════ */
+
+.progress-bar {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+.progress-bar .track {
+    -fx-background-color: #2d2d2d;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
+}
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #1a73e8, #8ab4f8);
+    -fx-background-radius: 2px;
+    -fx-background-insets: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TOOLTIP — ciemny, zaokrąglony
+   ══════════════════════════════════════════════════════════════════ */
+
+.tooltip {
+    -fx-background-color: #2d2d2d;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: #3c4043;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 12px;
+    -fx-font-size: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DIALOGI (Alert, TextInputDialog)
+   ══════════════════════════════════════════════════════════════════ */
+
+.dialog-pane {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #3c4043;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.dialog-pane .header-panel {
+    -fx-background-color: #1e1e1e;
+}
+.dialog-pane .content {
+    -fx-padding: 16px;
+}
+.dialog-pane .button-bar {
+    -fx-background-color: transparent;
+}
+.dialog-pane .label {
+    -fx-text-fill: #e0e0e0;
+}

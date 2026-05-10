@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane
+    prefHeight="700.0"
+    prefWidth="1200.0"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.apex.app.ui.MainController">
+
+    <!-- TOP TOOLBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="top-panel" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="14.0" left="20.0" right="20.0" top="14.0" />
+            </padding>
+
+            <!-- Left group: profile management -->
+            <ComboBox
+                fx:id="profileComboBox"
+                promptText="Select profile..."
+                styleClass="combo-box, top-bar-control"
+                HBox.hgrow="SOMETIMES"
+                minWidth="180.0"
+                maxWidth="280.0" />
+            <Button
+                text="Save"
+                onAction="#handleSaveProfile"
+                styleClass="button, top-bar-control" />
+            <Button
+                text="⚙ Manage"
+                onAction="#handleManageProfiles"
+                styleClass="button, top-bar-control" />
+
+            <!-- Separator between profile and status -->
+            <Separator orientation="VERTICAL" />
+
+            <!-- Global status label -->
+            <Label fx:id="statusLabel" text="No active sessions" styleClass="status-label" />
+
+            <!-- Elastic spacer pushes connection fields to the right -->
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Right group: connection fields -->
+            <TextField
+                fx:id="hostField"
+                promptText="Host / IP"
+                styleClass="text-field"
+                HBox.hgrow="SOMETIMES"
+                minWidth="140.0"
+                maxWidth="220.0" />
+            <TextField
+                fx:id="portField"
+                promptText="Port"
+                text="22"
+                styleClass="text-field"
+                minWidth="50.0"
+                maxWidth="70.0" />
+            <TextField
+                fx:id="userField"
+                promptText="Username"
+                styleClass="text-field"
+                HBox.hgrow="SOMETIMES"
+                minWidth="100.0"
+                maxWidth="160.0" />
+            <PasswordField
+                fx:id="passwordField"
+                promptText="Password"
+                styleClass="password-field"
+                HBox.hgrow="SOMETIMES"
+                minWidth="110.0"
+                maxWidth="180.0" />
+
+            <!-- Connect button — pill accent -->
+            <Button
+                fx:id="connectButton"
+                text="Connect"
+                onAction="#handleConnect"
+                styleClass="button, connect-button, top-bar-control" />
+        </HBox>
+    </top>
+
+    <!-- CENTER: Session TabPane -->
+    <center>
+        <TabPane
+            fx:id="mainTabPane"
+            tabClosingPolicy="ALL_TABS"
+            styleClass="session-tab-pane"
+            BorderPane.alignment="CENTER">
+        </TabPane>
+    </center>
+
+    <!-- BOTTOM: Status bar -->
+    <bottom>
+        <HBox styleClass="status-bar" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="5" bottom="5" left="20" right="20" />
+            </padding>
+            <Label fx:id="pathLabel" text="" styleClass="status-bar-label" />
+        </HBox>
+    </bottom>
+</BorderPane>

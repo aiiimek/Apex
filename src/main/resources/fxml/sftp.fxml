@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane
+    prefHeight="580.0"
+    prefWidth="750.0"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.apex.app.ui.SftpController">
+
+    <!-- PASEK NARZĘDZI (Toolbar) -->
+    <top>
+        <VBox styleClass="top-panel">
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <padding>
+                    <Insets top="12" bottom="12" left="16" right="16" />
+                </padding>
+
+                <!-- Nawigacja -->
+                <Button
+                    text="↑ Up"
+                    onAction="#handleGoUp"
+                    styleClass="button, sftp-nav-button">
+                    <tooltip><Tooltip text="Go to parent directory" /></tooltip>
+                </Button>
+                <Button
+                    text="⟳ Refresh"
+                    onAction="#handleRefresh"
+                    styleClass="button, sftp-nav-button">
+                    <tooltip><Tooltip text="Refresh current directory" /></tooltip>
+                </Button>
+
+                <!-- Separator -->
+                <Separator orientation="VERTICAL" />
+
+                <!-- Transfer -->
+                <Button
+                    text="⬆ Upload"
+                    onAction="#handleUpload"
+                    styleClass="button, sftp-upload-button">
+                    <tooltip><Tooltip text="Upload files to server (drag and drop also supported)" /></tooltip>
+                </Button>
+                <Button
+                    text="⬇ Download"
+                    onAction="#handleDownload"
+                    styleClass="button, sftp-download-button">
+                    <tooltip><Tooltip text="Download selected file to local disk" /></tooltip>
+                </Button>
+
+                <!-- Separator -->
+                <Separator orientation="VERTICAL" />
+
+                <!-- Delete -->
+                <Button
+                    text="✕ Delete"
+                    onAction="#handleDelete"
+                    styleClass="button, sftp-delete-button">
+                    <tooltip><Tooltip text="Delete selected file or folder (irreversible!)" /></tooltip>
+                </Button>
+
+                <!-- Elastic spacer -->
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Current SFTP path -->
+                <Label fx:id="currentPathLabel" text="/" styleClass="sftp-path-label" />
+            </HBox>
+
+            <Separator />
+        </VBox>
+    </top>
+
+    <!-- CENTER: File list -->
+    <center>
+        <ListView
+            fx:id="fileListView"
+            styleClass="list-view, sftp-list-view"
+            BorderPane.alignment="CENTER" />
+    </center>
+
+    <!-- BOTTOM: Status bar -->
+    <bottom>
+        <VBox styleClass="status-bar">
+            <padding>
+                <Insets top="6" bottom="6" left="16" right="16" />
+            </padding>
+            <!-- Progress bar: hidden by default -->
+            <ProgressBar
+                fx:id="transferProgressBar"
+                progress="0.0"
+                prefWidth="10000"
+                prefHeight="4.0"
+                visible="false"
+                managed="false" />
+            <!-- Status row -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label fx:id="transferStatusLabel" text="" styleClass="status-bar-label" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="statusLabel" text="Ready." styleClass="status-bar-label" />
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>
