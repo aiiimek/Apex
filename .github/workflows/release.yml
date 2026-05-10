@@ -32,16 +32,13 @@ jobs:
 
       # ─────────────────────────────────────────────
       # 3. Budowanie Fat JAR przez Maven
-      #    Wynik: target/apex-1.0.0-SNAPSHOT.jar
-      #           target/apex-1.0.0-SNAPSHOT-shaded.jar
       # ─────────────────────────────────────────────
       - name: Build Fat JAR with Maven
         run: mvn --batch-mode clean package -DskipTests
 
       # ─────────────────────────────────────────────
       # 4. Generowanie instalatora .exe (jpackage)
-      #    Nie wymaga jlink/modularności — działa z fat JARem.
-      #    Wynik: Apex-1.0.0.exe w katalogu roboczym (.)
+      #    DODANO: --icon src/main/resources/images/icon.ico
       # ─────────────────────────────────────────────
       - name: Generate Windows .exe Installer
         run: >-
@@ -53,6 +50,7 @@ jobs:
           --description "Apex SSH & SFTP Remote Commander"
           --about-url "https://github.com/aiiimek/Apex"
           --copyright "Copyright 2026 aiiimek"
+          --icon src/main/resources/images/icon.ico
           --input target
           --main-jar apex-1.0.0-SNAPSHOT-shaded.jar
           --main-class com.apex.app.Main
@@ -64,14 +62,15 @@ jobs:
           --win-per-user-install
 
       # ─────────────────────────────────────────────
-      # 5. Debug — wylistowanie wygenerowanych plików
+      # 5. Zmiana nazwy instalatora na czyste Apex.exe
       # ─────────────────────────────────────────────
-      - name: List generated installer files
-        run: Get-ChildItem installer-output\ | Select-Object Name, Length
+      - name: Rename Installer to Apex.exe
+        run: Rename-Item -Path "installer-output\Apex-*.exe" -NewName "Apex.exe"
         shell: powershell
 
       # ─────────────────────────────────────────────
       # 6. Publikacja GitHub Release z plikiem .exe
+      #    ZMIENIONO: files wskazuje teraz na czyste Apex.exe
       # ─────────────────────────────────────────────
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -79,6 +78,6 @@ jobs:
           name: "Apex ${{ github.ref_name }}"
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: installer-output/*.exe
+          files: installer-output/Apex.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
