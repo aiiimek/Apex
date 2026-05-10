@@ -1,5 +1,6 @@
 package com.apex.app.ui;
 
+import com.apex.app.ApexApplication;
 import com.apex.app.core.CredentialVault;
 import com.apex.app.core.HostProfile;
 import javafx.application.Platform;
@@ -9,41 +10,34 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
-/**
- * Główny kontroler okna aplikacji — orkiestrator zakładek.
- *
- * Architektura Multi-Tab (Krok 14):
- * MainController zarządza wyłącznie górnym paskiem (profili, pól połączenia)
- * oraz TabPane. Cała logika terminala, klawiatury, sesji SSH i SFTP
- * została przeniesiona do SessionTabFactory, która tworzy izolowane zakładki.
- *
- * Kliknięcie "Connect" NIE nadpisuje obecnego widoku — tworzy NOWĄ zakładkę.
- * Użytkownik może mieć wiele połączeń jednocześnie.
- */
 public class MainController {
-    private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
-    // Kontrolki górnego paska
+    private static final Logger log = LoggerFactory.getLogger(MainController.class);
+    private static final Preferences PREFS = Preferences.userNodeForPackage(ApexApplication.class);
+
     @FXML private ComboBox<String> profileComboBox;
     @FXML private TextField hostField;
     @FXML private TextField portField;
@@ -52,48 +46,61 @@ public class MainController {
     @FXML private Button connectButton;
     @FXML private Label statusLabel;
     @FXML private Label pathLabel;
-
-    // TabPane — centrum aplikacji
     @FXML private TabPane mainTabPane;
+    @FXML private ComboBox<String> languageComboBox;
 
-    // Credential Vault
+    @FXML private ResourceBundle resources;
+
     private CredentialVault vault;
     private List<HostProfile> savedProfiles;
 
-    /**
-     * Wywoływana automatycznie przez FXMLLoader po załadowaniu main.fxml.
-     * Konfiguruje: vault, profile, listener na zmiany zakładek.
-     */
     @FXML
     public void initialize() {
         vault = new CredentialVault();
         loadProfiles();
 
-        // Listener: wybranie profilu z listy autouzupełnia pola połączenia
         profileComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                applyProfileToFields(newVal);
-            }
+            if (newVal != null) applyProfileToFields(newVal);
         });
 
-        // Listener: aktualizacja statusu globalnego przy zmianie liczby zakładek
-        mainTabPane.getTabs().addListener((javafx.collections.ListChangeListener<Tab>) change -> {
-            updateGlobalStatus();
-        });
+        mainTabPane.getTabs().addListener((javafx.collections.ListChangeListener<Tab>) change -> updateGlobalStatus());
 
+        initLanguageSwitcher();
         updateGlobalStatus();
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // CONNECT — tworzenie nowej zakładki
-    // ══════════════════════════════════════════════════════════════════════════
+    private void initLanguageSwitcher() {
+        languageComboBox.setItems(FXCollections.observableArrayList(
+                resources.getString("lang.english"),
+                resources.getString("lang.polish")
+        ));
 
-    /**
-     * Tworzy nową zakładkę z połączeniem SSH.
-     *
-     * Jeśli pola są wypełnione ręcznie (bez profilu), tworzy tymczasowy profil.
-     * Jeśli profil jest wybrany z ComboBox, używa jego danych.
-     */
+        String currentLang = PREFS.get(ApexApplication.PREF_KEY_LANG, "en");
+        languageComboBox.getSelectionModel().select(currentLang.equals("pl")
+                ? resources.getString("lang.polish")
+                : resources.getString("lang.english"));
+    }
+
+    @FXML
+    private void handleLanguageChange() {
+        String selected = languageComboBox.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+
+        String newLang = selected.equals(resources.getString("lang.polish")) ? "pl" : "en";
+        String currentLang = PREFS.get(ApexApplication.PREF_KEY_LANG, "en");
+
+        if (newLang.equals(currentLang)) return;
+
+        PREFS.put(ApexApplication.PREF_KEY_LANG, newLang);
+        log.info("Language preference saved: {}", newLang);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(resources.getString("alert.restart.title"));
+        alert.setHeaderText(null);
+        alert.setContentText(resources.getString("alert.restart.content"));
+        alert.showAndWait();
+    }
+
     @FXML
     private void handleConnect() {
         String host = hostField.getText().trim();
@@ -102,17 +109,17 @@ public class MainController {
         String password = passwordField.getText();
 
         if (host.isEmpty() || user.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Błąd walidacji", "Host i użytkownik nie mogą być puste.");
+            showAlert(Alert.AlertType.WARNING,
+                    resources.getString("alert.validation.title"),
+                    resources.getString("alert.validation.host_user"));
             return;
         }
 
         int parsedPort = 22;
         try {
             parsedPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException ignored) {
-        }
+        } catch (NumberFormatException ignored) {}
 
-        // Budujemy profil (tymczasowy lub z nazwy wybranego profilu)
         String profileName = profileComboBox.getSelectionModel().getSelectedItem();
         if (profileName == null || profileName.isBlank()) {
             profileName = user + "@" + host;
@@ -121,26 +128,18 @@ public class MainController {
         String encryptedPass = vault.encryptPassword(password);
         HostProfile profile = new HostProfile(profileName, host, parsedPort, user, encryptedPass);
 
-        // Tworzymy nową zakładkę przez fabrykę
-        Tab sessionTab = SessionTabFactory.createSessionTab(profile, vault);
-
-        // Dodajemy do TabPane i aktywujemy
+        Tab sessionTab = SessionTabFactory.createSessionTab(profile, vault, resources);
         mainTabPane.getTabs().add(sessionTab);
         mainTabPane.getSelectionModel().select(sessionTab);
 
-        log.info("Utworzono nową zakładkę: {}", profileName);
+        log.info("New tab created: {}", profileName);
 
-        // Czyszczenie pól po nawiązaniu połączenia
         hostField.clear();
         userField.clear();
         passwordField.clear();
         portField.setText("22");
         profileComboBox.getSelectionModel().clearSelection();
     }
-
-    // ══════════════════════════════════════════════════════════════════════════
-    // PROFILE (Credential Vault)
-    // ══════════════════════════════════════════════════════════════════════════
 
     @FXML
     private void handleSaveProfile() {
@@ -150,24 +149,24 @@ public class MainController {
         String password = passwordField.getText();
 
         if (host.isEmpty() || user.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Brak danych", "Wypełnij Host i Użytkownik przed zapisaniem profilu.");
+            showAlert(Alert.AlertType.WARNING,
+                    resources.getString("alert.validation.title"),
+                    resources.getString("alert.save.host_user"));
             return;
         }
 
         int parsedPort = 22;
         try {
             parsedPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException ignored) {
-        }
+        } catch (NumberFormatException ignored) {}
         final int port = parsedPort;
 
         TextInputDialog dialog = new TextInputDialog(user + "@" + host);
-        dialog.setTitle("Zapisz Profil");
-        dialog.setHeaderText("Nadaj nazwę nowemu profilowi połączenia:");
-        dialog.setContentText("Nazwa profilu:");
+        dialog.setTitle(resources.getString("dialog.save_profile.title"));
+        dialog.setHeaderText(resources.getString("dialog.save_profile.header"));
+        dialog.setContentText(resources.getString("dialog.save_profile.label"));
         dialog.showAndWait().ifPresent(name -> {
-            if (name.isBlank())
-                return;
+            if (name.isBlank()) return;
             String encryptedPass = vault.encryptPassword(password);
             HostProfile profile = new HostProfile(name, host, port, user, encryptedPass);
             savedProfiles.removeIf(p -> p.profileName().equals(name));
@@ -175,7 +174,7 @@ public class MainController {
             vault.saveProfiles(savedProfiles);
             loadProfiles();
             profileComboBox.getSelectionModel().select(name);
-            log.info("Zapisano profil: {}", name);
+            log.info("Profile saved: {}", name);
         });
     }
 
@@ -191,7 +190,7 @@ public class MainController {
     private void handleManageProfiles() {
         Stage manageStage = new Stage();
         manageStage.initModality(Modality.APPLICATION_MODAL);
-        manageStage.setTitle("Zarządzaj Profilami");
+        manageStage.setTitle(resources.getString("dialog.manage.title"));
 
         ListView<String> listView = new ListView<>();
         listView.setItems(FXCollections.observableArrayList(
@@ -200,10 +199,10 @@ public class MainController {
         listView.getStyleClass().add("list-view");
         VBox.setVgrow(listView, Priority.ALWAYS);
 
-        Button editBtn = new Button("✎ Edytuj");
+        Button editBtn = new Button(resources.getString("btn.edit"));
         editBtn.getStyleClass().add("button");
 
-        Button deleteBtn = new Button("✕ Usuń");
+        Button deleteBtn = new Button(resources.getString("btn.delete"));
         deleteBtn.getStyleClass().addAll("button", "danger-button");
 
         editBtn.setOnAction(e -> {
@@ -211,19 +210,17 @@ public class MainController {
             if (selected != null) {
                 HostProfile oldProfile = savedProfiles.stream()
                         .filter(p -> p.profileName().equals(selected))
-                        .findFirst()
-                        .orElse(null);
-
+                        .findFirst().orElse(null);
                 if (oldProfile != null) {
-                    EditProfileDialog dialog = new EditProfileDialog(oldProfile, vault);
-                    Optional<HostProfile> result = dialog.showAndWait();
-                    result.ifPresent(updatedProfile -> {
+                    EditProfileDialog dlg = new EditProfileDialog(oldProfile, vault);
+                    Optional<HostProfile> result = dlg.showAndWait();
+                    result.ifPresent(updated -> {
                         savedProfiles.removeIf(p -> p.profileName().equals(selected));
-                        savedProfiles.add(updatedProfile);
+                        savedProfiles.add(updated);
                         vault.saveProfiles(savedProfiles);
                         loadProfiles();
-                        profileComboBox.getSelectionModel().select(updatedProfile.profileName());
-                        log.info("Zaktualizowano profil: {}", updatedProfile.profileName());
+                        profileComboBox.getSelectionModel().select(updated.profileName());
+                        log.info("Profile updated: {}", updated.profileName());
                     });
                 }
             }
@@ -237,14 +234,14 @@ public class MainController {
                 loadProfiles();
                 listView.getItems().remove(selected);
                 profileComboBox.getSelectionModel().clearSelection();
-                log.info("Usunięto profil: {}", selected);
+                log.info("Profile deleted: {}", selected);
             }
         });
 
         HBox btnBox = new HBox(12, editBtn, deleteBtn);
         btnBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
 
-        Label headerLabel = new Label("Zapisane profile:");
+        Label headerLabel = new Label(resources.getString("dialog.manage.header"));
         headerLabel.getStyleClass().add("label-header");
 
         VBox layout = new VBox(14, headerLabel, listView, btnBox);
@@ -255,9 +252,9 @@ public class MainController {
         try {
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         } catch (Exception ex) {
-            log.warn("Nie udało się załadować stylów dla okna zarządzania profili.");
+            log.warn("Could not load stylesheet for manage profiles window.");
         }
-        
+
         manageStage.setScene(scene);
         manageStage.showAndWait();
     }
@@ -273,24 +270,21 @@ public class MainController {
                     try {
                         passwordField.setText(vault.decryptPassword(p.encryptedPassword()));
                     } catch (Exception e) {
-                        log.error("Błąd deszyfrowania hasła", e);
+                        log.error("Failed to decrypt password", e);
                         passwordField.setText("");
                     }
                 });
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // POMOCNICZE METODY
-    // ══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Aktualizuje globalny status (dolny pasek) z liczbą aktywnych sesji.
-     */
     private void updateGlobalStatus() {
         int count = mainTabPane.getTabs().size();
         Platform.runLater(() -> {
-            statusLabel.setText(count == 0 ? "Brak aktywnych sesji" : "Aktywne sesje: " + count);
-            pathLabel.setText(count == 0 ? "Wybierz profil i kliknij Connect, aby otworzyć nową zakładkę." : "");
+            statusLabel.setText(count == 0
+                    ? resources.getString("label.no_sessions")
+                    : MessageFormat.format(resources.getString("label.sessions_count"), count));
+            pathLabel.setText(count == 0
+                    ? resources.getString("label.hint")
+                    : "");
         });
     }
 

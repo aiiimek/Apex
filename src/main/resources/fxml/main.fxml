@@ -20,79 +20,80 @@
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.apex.app.ui.MainController">
 
-    <!-- TOP TOOLBAR -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="top-panel" BorderPane.alignment="CENTER">
             <padding>
                 <Insets bottom="14.0" left="20.0" right="20.0" top="14.0" />
             </padding>
 
-            <!-- Left group: profile management -->
             <ComboBox
                 fx:id="profileComboBox"
-                promptText="Select profile..."
+                promptText="%field.host.prompt"
                 styleClass="combo-box, top-bar-control"
                 HBox.hgrow="SOMETIMES"
                 minWidth="180.0"
                 maxWidth="280.0" />
             <Button
-                text="Save"
+                text="%btn.save"
                 onAction="#handleSaveProfile"
                 styleClass="button, top-bar-control" />
             <Button
-                text="⚙ Manage"
+                text="%btn.manage"
                 onAction="#handleManageProfiles"
                 styleClass="button, top-bar-control" />
 
-            <!-- Separator between profile and status -->
             <Separator orientation="VERTICAL" />
 
-            <!-- Global status label -->
-            <Label fx:id="statusLabel" text="No active sessions" styleClass="status-label" />
+            <Label fx:id="statusLabel" text="%label.no_sessions" styleClass="status-label" />
 
-            <!-- Elastic spacer pushes connection fields to the right -->
             <Region HBox.hgrow="ALWAYS" />
 
-            <!-- Right group: connection fields -->
             <TextField
                 fx:id="hostField"
-                promptText="Host / IP"
+                promptText="%field.host.prompt"
                 styleClass="text-field"
                 HBox.hgrow="SOMETIMES"
                 minWidth="140.0"
                 maxWidth="220.0" />
             <TextField
                 fx:id="portField"
-                promptText="Port"
+                promptText="%field.port.prompt"
                 text="22"
                 styleClass="text-field"
                 minWidth="50.0"
                 maxWidth="70.0" />
             <TextField
                 fx:id="userField"
-                promptText="Username"
+                promptText="%field.username.prompt"
                 styleClass="text-field"
                 HBox.hgrow="SOMETIMES"
                 minWidth="100.0"
                 maxWidth="160.0" />
             <PasswordField
                 fx:id="passwordField"
-                promptText="Password"
+                promptText="%field.password.prompt"
                 styleClass="password-field"
                 HBox.hgrow="SOMETIMES"
                 minWidth="110.0"
                 maxWidth="180.0" />
 
-            <!-- Connect button — pill accent -->
             <Button
                 fx:id="connectButton"
-                text="Connect"
+                text="%btn.connect"
                 onAction="#handleConnect"
                 styleClass="button, connect-button, top-bar-control" />
+
+            <Separator orientation="VERTICAL" />
+
+            <Label text="%label.language" styleClass="status-label" />
+            <ComboBox
+                fx:id="languageComboBox"
+                styleClass="combo-box, top-bar-control, small-combo"
+                minWidth="90.0"
+                onAction="#handleLanguageChange" />
         </HBox>
     </top>
 
-    <!-- CENTER: Session TabPane -->
     <center>
         <TabPane
             fx:id="mainTabPane"
@@ -102,7 +103,6 @@
         </TabPane>
     </center>
 
-    <!-- BOTTOM: Status bar -->
     <bottom>
         <HBox styleClass="status-bar" alignment="CENTER_LEFT">
             <padding>

@@ -19,7 +19,6 @@
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.apex.app.ui.SftpController">
 
-    <!-- PASEK NARZĘDZI (Toolbar) -->
     <top>
         <VBox styleClass="top-panel">
             <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -27,52 +26,45 @@
                     <Insets top="12" bottom="12" left="16" right="16" />
                 </padding>
 
-                <!-- Nawigacja -->
                 <Button
-                    text="↑ Up"
+                    text="%btn.sftp.up"
                     onAction="#handleGoUp"
                     styleClass="button, sftp-nav-button">
-                    <tooltip><Tooltip text="Go to parent directory" /></tooltip>
+                    <tooltip><Tooltip text="%tooltip.sftp.up" /></tooltip>
                 </Button>
                 <Button
-                    text="⟳ Refresh"
+                    text="%btn.sftp.refresh"
                     onAction="#handleRefresh"
                     styleClass="button, sftp-nav-button">
-                    <tooltip><Tooltip text="Refresh current directory" /></tooltip>
+                    <tooltip><Tooltip text="%tooltip.sftp.refresh" /></tooltip>
                 </Button>
 
-                <!-- Separator -->
                 <Separator orientation="VERTICAL" />
 
-                <!-- Transfer -->
                 <Button
-                    text="⬆ Upload"
+                    text="%btn.sftp.upload"
                     onAction="#handleUpload"
                     styleClass="button, sftp-upload-button">
-                    <tooltip><Tooltip text="Upload files to server (drag and drop also supported)" /></tooltip>
+                    <tooltip><Tooltip text="%tooltip.sftp.upload" /></tooltip>
                 </Button>
                 <Button
-                    text="⬇ Download"
+                    text="%btn.sftp.download"
                     onAction="#handleDownload"
                     styleClass="button, sftp-download-button">
-                    <tooltip><Tooltip text="Download selected file to local disk" /></tooltip>
+                    <tooltip><Tooltip text="%tooltip.sftp.download" /></tooltip>
                 </Button>
 
-                <!-- Separator -->
                 <Separator orientation="VERTICAL" />
 
-                <!-- Delete -->
                 <Button
-                    text="✕ Delete"
+                    text="%btn.sftp.delete"
                     onAction="#handleDelete"
                     styleClass="button, sftp-delete-button">
-                    <tooltip><Tooltip text="Delete selected file or folder (irreversible!)" /></tooltip>
+                    <tooltip><Tooltip text="%tooltip.sftp.delete" /></tooltip>
                 </Button>
 
-                <!-- Elastic spacer -->
                 <Region HBox.hgrow="ALWAYS" />
 
-                <!-- Current SFTP path -->
                 <Label fx:id="currentPathLabel" text="/" styleClass="sftp-path-label" />
             </HBox>
 
@@ -80,7 +72,6 @@
         </VBox>
     </top>
 
-    <!-- CENTER: File list -->
     <center>
         <ListView
             fx:id="fileListView"
@@ -88,13 +79,11 @@
             BorderPane.alignment="CENTER" />
     </center>
 
-    <!-- BOTTOM: Status bar -->
     <bottom>
         <VBox styleClass="status-bar">
             <padding>
                 <Insets top="6" bottom="6" left="16" right="16" />
             </padding>
-            <!-- Progress bar: hidden by default -->
             <ProgressBar
                 fx:id="transferProgressBar"
                 progress="0.0"
@@ -102,11 +91,10 @@
                 prefHeight="4.0"
                 visible="false"
                 managed="false" />
-            <!-- Status row -->
             <HBox alignment="CENTER_LEFT" spacing="10.0">
                 <Label fx:id="transferStatusLabel" text="" styleClass="status-bar-label" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="statusLabel" text="Ready." styleClass="status-bar-label" />
+                <Label fx:id="statusLabel" text="%label.sftp.ready" styleClass="status-bar-label" />
             </HBox>
         </VBox>
     </bottom>

@@ -9,20 +9,27 @@ import javafx.stage.Stage;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
-/**
- * Główna klasa startowa interfejsu JavaFX.
- */
 public class ApexApplication extends Application {
+
+    public static final String PREF_KEY_LANG = "apex.language";
+    private static final Preferences PREFS = Preferences.userNodeForPackage(ApexApplication.class);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        String langCode = PREFS.get(PREF_KEY_LANG, "en");
+        Locale locale = Locale.forLanguageTag(langCode);
+        ResourceBundle bundle = ResourceBundle.getBundle("bundles.messages", locale);
+
         URL fxmlLocation = getClass().getResource("/fxml/main.fxml");
         if (fxmlLocation == null) {
-            throw new IllegalStateException("Nie znaleziono pliku zasobu: /fxml/main.fxml");
+            throw new IllegalStateException("Resource not found: /fxml/main.fxml");
         }
 
-        FXMLLoader loader = new FXMLLoader(fxmlLocation);
+        FXMLLoader loader = new FXMLLoader(fxmlLocation, bundle);
         Parent root = loader.load();
 
         primaryStage.setTitle("Apex - Remote Commander");
@@ -30,7 +37,6 @@ public class ApexApplication extends Application {
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         primaryStage.setScene(scene);
 
-        // Ikona okna (pasek tytułu + pasek zadań Windows)
         InputStream iconStream = getClass().getResourceAsStream("/images/icon.png");
         if (iconStream != null) {
             primaryStage.getIcons().add(new Image(iconStream));
@@ -38,7 +44,6 @@ public class ApexApplication extends Application {
 
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(700);
-
         primaryStage.show();
     }
 
