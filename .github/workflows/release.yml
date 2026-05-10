@@ -62,11 +62,11 @@ jobs:
           --win-per-user-install
 
       # ─────────────────────────────────────────────
-      # 5. Zmiana nazwy instalatora na czyste Apex.exe
+      # 5. Zmiana nazwy instalatora na czyste Apex.exe (Bash)
       # ─────────────────────────────────────────────
       - name: Rename Installer to Apex.exe
-        run: Rename-Item -Path "installer-output\Apex-*.exe" -NewName "Apex.exe"
-        shell: powershell
+        run: mv installer-output/Apex*.exe installer-output/Apex.exe
+        shell: bash
 
       # ─────────────────────────────────────────────
       # 6. Publikacja GitHub Release z plikiem .exe
