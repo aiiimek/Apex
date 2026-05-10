@@ -49,8 +49,10 @@ jobs:
           --type exe
           --name "Apex"
           --app-version "1.0.0"
-          --vendor "Apex Project"
+          --vendor "aiiimek"
           --description "Apex SSH & SFTP Remote Commander"
+          --about-url "https://github.com/aiiimek/Apex"
+          --copyright "Copyright 2026 aiiimek"
           --input target
           --main-jar apex-1.0.0-SNAPSHOT-shaded.jar
           --main-class com.apex.app.Main
@@ -59,6 +61,7 @@ jobs:
           --win-shortcut
           --win-menu
           --win-menu-group "Apex"
+          --win-per-user-install
 
       # ─────────────────────────────────────────────
       # 5. Debug — wylistowanie wygenerowanych plików
