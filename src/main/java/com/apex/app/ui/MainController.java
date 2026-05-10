@@ -21,12 +21,21 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.text.MessageFormat;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -38,18 +47,32 @@ public class MainController {
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
     private static final Preferences PREFS = Preferences.userNodeForPackage(ApexApplication.class);
 
-    @FXML private ComboBox<String> profileComboBox;
-    @FXML private TextField hostField;
-    @FXML private TextField portField;
-    @FXML private TextField userField;
-    @FXML private PasswordField passwordField;
-    @FXML private Button connectButton;
-    @FXML private Label statusLabel;
-    @FXML private Label pathLabel;
-    @FXML private TabPane mainTabPane;
-    @FXML private ComboBox<String> languageComboBox;
+    private static final String CURRENT_VERSION = "v1.1.0";
+    private static final String GITHUB_REPO = "aiiimek/Apex";
 
-    @FXML private ResourceBundle resources;
+    @FXML
+    private ComboBox<String> profileComboBox;
+    @FXML
+    private TextField hostField;
+    @FXML
+    private TextField portField;
+    @FXML
+    private TextField userField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Button connectButton;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label pathLabel;
+    @FXML
+    private TabPane mainTabPane;
+    @FXML
+    private ComboBox<String> languageComboBox;
+
+    @FXML
+    private ResourceBundle resources;
 
     private CredentialVault vault;
     private List<HostProfile> savedProfiles;
@@ -60,20 +83,21 @@ public class MainController {
         loadProfiles();
 
         profileComboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) applyProfileToFields(newVal);
+            if (newVal != null)
+                applyProfileToFields(newVal);
         });
 
         mainTabPane.getTabs().addListener((javafx.collections.ListChangeListener<Tab>) change -> updateGlobalStatus());
 
         initLanguageSwitcher();
         updateGlobalStatus();
+        checkForUpdates();
     }
 
     private void initLanguageSwitcher() {
         languageComboBox.setItems(FXCollections.observableArrayList(
                 resources.getString("lang.english"),
-                resources.getString("lang.polish")
-        ));
+                resources.getString("lang.polish")));
 
         String currentLang = PREFS.get(ApexApplication.PREF_KEY_LANG, "en");
         languageComboBox.getSelectionModel().select(currentLang.equals("pl")
@@ -84,12 +108,14 @@ public class MainController {
     @FXML
     private void handleLanguageChange() {
         String selected = languageComboBox.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
+        if (selected == null)
+            return;
 
         String newLang = selected.equals(resources.getString("lang.polish")) ? "pl" : "en";
         String currentLang = PREFS.get(ApexApplication.PREF_KEY_LANG, "en");
 
-        if (newLang.equals(currentLang)) return;
+        if (newLang.equals(currentLang))
+            return;
 
         PREFS.put(ApexApplication.PREF_KEY_LANG, newLang);
         log.info("Language preference saved: {}", newLang);
@@ -118,7 +144,8 @@ public class MainController {
         int parsedPort = 22;
         try {
             parsedPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
 
         String profileName = profileComboBox.getSelectionModel().getSelectedItem();
         if (profileName == null || profileName.isBlank()) {
@@ -158,7 +185,8 @@ public class MainController {
         int parsedPort = 22;
         try {
             parsedPort = Integer.parseInt(portStr);
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
         final int port = parsedPort;
 
         TextInputDialog dialog = new TextInputDialog(user + "@" + host);
@@ -166,7 +194,8 @@ public class MainController {
         dialog.setHeaderText(resources.getString("dialog.save_profile.header"));
         dialog.setContentText(resources.getString("dialog.save_profile.label"));
         dialog.showAndWait().ifPresent(name -> {
-            if (name.isBlank()) return;
+            if (name.isBlank())
+                return;
             String encryptedPass = vault.encryptPassword(password);
             HostProfile profile = new HostProfile(name, host, port, user, encryptedPass);
             savedProfiles.removeIf(p -> p.profileName().equals(name));
@@ -194,8 +223,7 @@ public class MainController {
 
         ListView<String> listView = new ListView<>();
         listView.setItems(FXCollections.observableArrayList(
-                savedProfiles.stream().map(HostProfile::profileName).collect(Collectors.toList())
-        ));
+                savedProfiles.stream().map(HostProfile::profileName).collect(Collectors.toList())));
         listView.getStyleClass().add("list-view");
         VBox.setVgrow(listView, Priority.ALWAYS);
 
@@ -294,5 +322,50 @@ public class MainController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private void checkForUpdates() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest"))
+                        .header("Accept", "application/vnd.github.v3+json")
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    Matcher matcher = Pattern.compile("\"tag_name\"\\s*:\\s*\"([^\"]+)\"").matcher(response.body());
+                    if (matcher.find()) {
+                        String latestVersion = matcher.group(1);
+                        if (!CURRENT_VERSION.equals(latestVersion)) {
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Nowa wersja");
+                                alert.setHeaderText("Dostępna jest nowa wersja: " + latestVersion);
+                                alert.setContentText("Czy chcesz pobrać aktualizację?");
+
+                                ButtonType downloadBtn = new ButtonType("Pobierz");
+                                alert.getButtonTypes().setAll(downloadBtn, ButtonType.CANCEL);
+
+                                alert.showAndWait().ifPresent(type -> {
+                                    if (type == downloadBtn) {
+                                        try {
+                                            Desktop.getDesktop().browse(
+                                                    new URI("https://github.com/" + GITHUB_REPO + "/releases/latest"));
+                                        } catch (Exception e) {
+                                            log.error("Nie udało się otworzyć przeglądarki", e);
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Błąd podczas sprawdzania aktualizacji", e);
+            }
+        });
     }
 }
