@@ -4,8 +4,10 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -27,10 +29,16 @@ public class ApexApplication extends Application {
         Scene scene = new Scene(root, 1200, 800);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
         primaryStage.setScene(scene);
-        
+
+        // Ikona okna (pasek tytułu + pasek zadań Windows)
+        InputStream iconStream = getClass().getResourceAsStream("/images/icon.png");
+        if (iconStream != null) {
+            primaryStage.getIcons().add(new Image(iconStream));
+        }
+
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(700);
-        
+
         primaryStage.show();
     }
 
