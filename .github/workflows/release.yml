@@ -31,50 +31,44 @@ jobs:
           cache: maven
 
       # ─────────────────────────────────────────────
-      # 3. Budowanie projektu + fat JAR przez Maven
+      # 3. Budowanie Fat JAR przez Maven
+      #    Wynik: target/apex-1.0.0-SNAPSHOT.jar
+      #           target/apex-1.0.0-SNAPSHOT-shaded.jar
       # ─────────────────────────────────────────────
-      - name: Build with Maven (package + shade)
+      - name: Build Fat JAR with Maven
         run: mvn --batch-mode clean package -DskipTests
 
       # ─────────────────────────────────────────────
-      # 4. Tworzenie minimalnego runtime (jlink)
+      # 4. Generowanie instalatora .exe (jpackage)
+      #    Nie wymaga jlink/modularności — działa z fat JARem.
+      #    Wynik: Apex-1.0.0.exe w katalogu roboczym (.)
       # ─────────────────────────────────────────────
-      - name: Create runtime image (jlink)
-        run: mvn --batch-mode javafx:jlink
+      - name: Generate Windows .exe Installer
+        run: >-
+          jpackage
+          --type exe
+          --name "Apex"
+          --app-version "1.0.0"
+          --vendor "Apex Project"
+          --description "Apex SSH & SFTP Remote Commander"
+          --input target
+          --main-jar apex-1.0.0-SNAPSHOT-shaded.jar
+          --main-class com.apex.app.Main
+          --dest installer-output
+          --win-dir-chooser
+          --win-shortcut
+          --win-menu
+          --win-menu-group "Apex"
 
       # ─────────────────────────────────────────────
-      # 5. Pakowanie instalatora Windows (jpackage)
-      #    Wynik: target/Apex-<version>.exe
+      # 5. Debug — wylistowanie wygenerowanych plików
       # ─────────────────────────────────────────────
-      - name: Package Windows installer (jpackage)
-        run: |
-          jpackage `
-            --type exe `
-            --name "Apex" `
-            --app-version "${{ github.ref_name }}" `
-            --vendor "Apex Project" `
-            --description "Apex SSH & SFTP Remote Commander" `
-            --runtime-image target/apex-jre `
-            --module-path target/apex-jre/lib `
-            --main-jar apex-1.0.0-SNAPSHOT-shaded.jar `
-            --main-class com.apex.app.Main `
-            --input target `
-            --dest target `
-            --win-dir-chooser `
-            --win-shortcut `
-            --win-menu `
-            --win-menu-group "Apex"
+      - name: List generated installer files
+        run: Get-ChildItem installer-output\ | Select-Object Name, Length
         shell: powershell
 
       # ─────────────────────────────────────────────
-      # 6. Wylistowanie target/ (debug — co zostało zbudowane)
-      # ─────────────────────────────────────────────
-      - name: List build artifacts
-        run: Get-ChildItem target\ -Filter "*.exe" | Select-Object Name, Length
-        shell: powershell
-
-      # ─────────────────────────────────────────────
-      # 7. Publikacja GitHub Release z plikiem .exe
+      # 6. Publikacja GitHub Release z plikiem .exe
       # ─────────────────────────────────────────────
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -82,6 +76,6 @@ jobs:
           name: "Apex ${{ github.ref_name }}"
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: target/*.exe
+          files: installer-output/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
